@@ -3,11 +3,15 @@ RebusWorker
 
 Trying out Rebus as alternativ to Nservicebus
 
-*Subscriptions
-*Saga
-*Timeout/defer
-*Using Autofac as DI container
+* Subscriptions
+* Sagas
+* Timeout/defer
+* Using Autofac as DI container
 
-
+## Getting started
 In order to run against local SQL server:
--create database "rebus_test"
+-
+
+```sql
+create database "rebus_test"
+```

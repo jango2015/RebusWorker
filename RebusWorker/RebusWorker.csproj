@@ -59,7 +59,7 @@
     <Compile Include="MessageHandlers\HandleTestEvent.cs" />
     <Compile Include="MessageHandlers\HandleTestMessage.cs" />
     <Compile Include="MessageHandlers\HandleTestMessage2.cs" />
-    <Compile Include="OwnershipResolver.cs" />
+    <Compile Include="SendToSelfResolver.cs" />
     <Compile Include="Saga\MySaga.cs" />
     <Compile Include="Saga\MySagaData.cs" />
     <Compile Include="Program.cs" />

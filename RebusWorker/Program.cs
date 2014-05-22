@@ -30,7 +30,7 @@ namespace RebusWorker
                .Run(c =>
                {
                    c.SetServiceName(typeof(Program).FullName);
-                   c.SetDescription("This is a simple integration service.");
+                   c.SetDescription("This is a simple rebus workerservice.");
 
                    c.Service<Program>(s =>
                    {
@@ -63,26 +63,36 @@ namespace RebusWorker
             var bus = Configure.With(new Rebus.Autofac.AutofacContainerAdapter(container))
                 .Logging(l => l.Use(new ConsoleLoggerFactory(true)))
                 //.Transport(t => t.UseSqlServerAndGetInputQueueNameFromAppConfig("server=localhost;database=rebus_test;integrated security=SSPI;").EnsureTableIsCreated())
-                .Transport(t => t.UseMsmq("Acos.Websak.Ekspederingservice.Input", "Acos.Websak.Ekspedering.Error"))
+                .Transport(t => t.UseMsmq("RebusWorker.Input", "RebusWorker.Error"))
                 .Serialization(s => s.UseJsonSerializer())
                 //.MessageOwnership(d => d.FromRebusConfigurationSection())
-                .MessageOwnership(d => d.Use(new OwnershipResolver()))
-                .Sagas(s => s.StoreInSqlServer("server=localhost;database=rebus_test;integrated security=SSPI;", "AllSagas", "SagaIndexTable").EnsureTablesAreCreated())
-                .Timeouts(t => t.StoreInSqlServer("server=localhost;database=rebus_test;integrated security=SSPI;", "Timeouts").EnsureTableIsCreated())
-                .Subscriptions(s => s.StoreInSqlServer("server=localhost;database=rebus_test;integrated security=SSPI;","subs").EnsureTableIsCreated())
+                .MessageOwnership(d => d.Use(new SendToSelfResolver()))
+                .Sagas(s => s.StoreInSqlServer(Connectionstring, "Sagas", "SagaIndexTable").EnsureTablesAreCreated())
+                .Timeouts(t => t.StoreInSqlServer(Connectionstring, "Timeouts").EnsureTableIsCreated())
+                .Subscriptions(s => s.StoreInSqlServer(Connectionstring, "Subscriptions").EnsureTableIsCreated())
                 .CreateBus()
                 .Start();
 
+            //Pub-sub
             bus.Subscribe<TestEvent>();
-            bus.Publish(new TestEvent(){Message = "Testevent"+DateTime.Now});
-            bus.Send(new TestMessage { Message = "Message " + DateTime.Now.ToString() });
+            bus.Publish(new TestEvent { Message = "Testevent" + DateTime.Now });
+            
+            //Send two simple messages
+            bus.Send(new TestMessage { Message = "Message " + DateTime.Now });
             bus.Send(new TestMessage2 { Message = "Message2 " + DateTime.Now });
+            
+            //Send message in order to start a saga
             bus.Send(new StartTheSagaMessage() { ProcessId = Guid.NewGuid() });
 
             Console.WriteLine("Startet - Waiting for messages");
-            //Console.ReadLine();
+            
 
 
+        }
+
+        private static string Connectionstring
+        {
+            get { return "server=localhost;database=rebus_test;integrated security=SSPI;"; }
         }
 
         void Stop()

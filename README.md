@@ -6,9 +6,11 @@ Trying out [Rebus](https://github.com/rebus-org/Rebus) as an alternative to [Nse
 ## Features covered ##
 * Pub/sub
 * Sagas
-* Timeout/defer
+* Timeout/defer (local timeoutmanager)
 * Using Autofac as DI container
 * Custom messageownership resolving (addressing)
+* Hosted by [Topshelf](https://github.com/Topshelf/Topshelf)
+
 
 ## Getting started ##
 In order to run against local SQL server:
